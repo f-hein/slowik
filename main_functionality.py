@@ -49,27 +49,28 @@ for one_combination in languages['dirs']:
         all_possible_combinations[first_lang] = [second_lang]
 
 
-while True:
-    list_of_jumps = list()
-    to_translate = input("Write something to translate: ")
-    number_of_jumps = input("Number of jumps: ")
-    response = requests.get(get_detect_lang+'&text={}'.format(to_translate))
-    predicted_lang = response.json()['lang']
-    output_lang, output_word, output_shortcuts = '', '', ''
-    for i in range(int(number_of_jumps)):
-        if i == 0:
-            print(i+1, end='. ')
-            output_lang, output_word, output_shortcuts = get_random_translation(predicted_lang, to_translate)
-            list_of_jumps.append([output_shortcuts, to_translate, output_word])
-        else:
-            print(i+1, end='. ')
+if __name__ == '__main__':
+    while True:
+        list_of_jumps = list()
+        to_translate = input("Write something to translate: ")
+        number_of_jumps = input("Number of jumps: ")
+        response = requests.get(get_detect_lang+'&text={}'.format(to_translate))
+        predicted_lang = response.json()['lang']
+        output_lang, output_word, output_shortcuts = '', '', ''
+        for i in range(int(number_of_jumps)):
+            if i == 0:
+                print(i+1, end='. ')
+                output_lang, output_word, output_shortcuts = get_random_translation(predicted_lang, to_translate)
+                list_of_jumps.append([output_shortcuts, to_translate, output_word])
+            else:
+                print(i+1, end='. ')
+                temp = output_word
+                output_lang, output_word, output_shortcuts = get_random_translation(output_lang, output_word)
+                list_of_jumps.append([output_shortcuts, temp, output_word])
+        paths_of_translation = path_to_original_language(predicted_lang, output_lang, [])
+        for translation in paths_of_translation:
+            print('R', end='| ')
+            sh_from, sh_to = translation.split('-')
             temp = output_word
-            output_lang, output_word, output_shortcuts = get_random_translation(output_lang, output_word)
-            list_of_jumps.append([output_shortcuts, temp, output_word])
-    paths_of_translation = path_to_original_language(predicted_lang, output_lang, [])
-    for translation in paths_of_translation:
-        print('R', end='| ')
-        sh_from, sh_to = translation.split('-')
-        temp = output_word
-        output_word = translate_word(sh_from, sh_to, output_word)
-        list_of_jumps.append([translation, temp, output_word])
+            output_word = translate_word(sh_from, sh_to, output_word)
+            list_of_jumps.append([translation, temp, output_word])
